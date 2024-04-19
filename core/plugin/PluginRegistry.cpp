@@ -178,6 +178,7 @@ PluginRegistry::PluginRegistry() {
 #else
                   "flusher_clickhouse",
                   "flusher_elasticsearch",
+                  "flusher_elasticsearch_v7",
                   "flusher_grpc",
                   "flusher_kafka_v2",
                   "flusher_loki",

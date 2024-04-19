@@ -286,6 +286,7 @@ require (
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.5
 	github.com/alibabacloud-go/sls-20201230/v5 v5.1.2
 	github.com/alibabacloud-go/tea v1.2.1
+	github.com/elastic/go-elasticsearch/v7 v7.17.10
 )
 
 require (
