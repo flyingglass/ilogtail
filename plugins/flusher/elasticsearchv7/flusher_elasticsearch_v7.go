@@ -210,9 +210,14 @@ func (f *FlusherElasticSearch) Flush(projectName string, logstoreName string, co
 			builder.WriteString(*ESIndex)
 			builder.WriteString(`"}}`)
 			buffer = append(buffer, builder.String())
+			// todo @timestamp covert string to date
+			fmt.Println("log:" + string(log))
 			buffer = append(buffer, string(log))
 		}
 		body := strings.Join(buffer, "\n")
+
+		fmt.Println("body:" + body)
+
 		req := esapi.BulkRequest{
 			Body: strings.NewReader(body + "\n"),
 		}
