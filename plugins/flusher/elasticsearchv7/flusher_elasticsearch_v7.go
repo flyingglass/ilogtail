@@ -211,12 +211,12 @@ func (f *FlusherElasticSearch) Flush(projectName string, logstoreName string, co
 			builder.WriteString(`"}}`)
 			buffer = append(buffer, builder.String())
 			// todo @timestamp covert string to date
-			fmt.Println("log:" + string(log))
+			logger.Info(f.context.GetRuntimeContext(), "log:"+string(log))
 			buffer = append(buffer, string(log))
 		}
 		body := strings.Join(buffer, "\n")
 
-		fmt.Println("body:" + body)
+		logger.Info(f.context.GetRuntimeContext(), "body:"+body)
 
 		req := esapi.BulkRequest{
 			Body: strings.NewReader(body + "\n"),
