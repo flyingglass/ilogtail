@@ -15,9 +15,14 @@
 package elasticsearchv7
 
 import (
-	"testing"
-
+	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 	. "github.com/smartystreets/goconvey/convey"
+	"strings"
+	"testing"
 )
 
 func TestGetIndexKeys(t *testing.T) {
@@ -102,4 +107,48 @@ func TestGetIndexKeys(t *testing.T) {
 			})
 		})
 	})
+}
+
+func TestTimestamp(t *testing.T) {
+	//dateString := "2021-04-25T12:30:00Z"
+	//t1, err := time.Parse(time.RFC3339, dateString)
+	//if err != nil {
+	//	fmt.Printf("Error parsing date string: %s\n", err)
+	//	return
+	//}
+	//esDate := t1.Format(time.RFC3339)
+	//fmt.Println("es date string:", esDate)
+
+	cfg := elasticsearch.Config{
+		Addresses: []string{
+			"http://logses.mddcloud.com.cn:9200",
+		},
+		Username: "elastic",
+		Password: "TvbC@Es2020",
+	}
+	es, _ := elasticsearch.NewClient(cfg)
+
+	bulkBody := strings.Builder{}
+	bulkBody.WriteString(`{"index": {"_index": "logtail-test"}}` + "\n")
+	bulkBody.WriteString(`{"host.ip":"172.16.228.170","host.name":"mdd-log-service-v1-55dd5b857-5vxbl","log.file.path":"/data/tvbcserver/mdd/logs/app/info.log","message":"mdd-log-service [main] INFO  c.m.s.l.MlsApplication 55 Starting MlsApplication v0.0.1-SNAPSHOT on mdd-log-service-v1-55dd5b857-5vxbl with PID 1 (/data/tvbcserver/mdd/mdd-log-service.jar started by tvbcserver in /data/tvbcserver/mdd)","time":1713956818, "@timestamp": "2024-04-23T00:00:00Z"}` + "\n")
+	bulkBody.WriteString(`{"index": {"_index": "logtail-test"}}` + "\n")
+	bulkBody.WriteString(`{"host.ip":"172.16.228.171","host.name":"mdd-log-service-v1-55dd5b857-5vxbl","log.file.path":"/data/tvbcserver/mdd/logs/app/info.log","message":"mdd-log-service [main] INFO  c.m.s.l.MlsApplication 55 Starting MlsApplication v0.0.1-SNAPSHOT on mdd-log-service-v1-55dd5b857-5vxbl with PID 1 (/data/tvbcserver/mdd/mdd-log-service.jar started by tvbcserver in /data/tvbcserver/mdd)","time":1713956818, "@timestamp": "2024-04-23T00:00:00Z"}` + "\n")
+	//bulkBody.WriteString(`{"@timestamp": "2024-04-23T00:00:00Z", "timestamp": "2024-04-24 19:06:52.832"}` + "\n")
+	bulkBody.WriteString("\n")
+
+	bulkRequest := esapi.BulkRequest{
+		Body: strings.NewReader(bulkBody.String()),
+	}
+	res, _ := bulkRequest.Do(context.Background(), es)
+
+	// 检查响应状态
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			fmt.Printf("Error parsing the error response: %s\n", err)
+			return
+		}
+		fmt.Printf("Error response: %s\n", e["error"].(map[string]interface{})["reason"])
+		return
+	}
 }
